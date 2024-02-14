@@ -19,30 +19,9 @@ plop
   [ "$status" -eq $ERROR_STRUCTURE ]
 }
 
-@test "structure: missing empty line after the header for jira" {
-  COMMIT="plop plop
-ABC-1234
-"
-  run validate_overall_structure "$COMMIT"
-  [ "$status" -eq $ERROR_STRUCTURE ]
-}
-
 @test "structure: missing empty line after the header for broken" {
   COMMIT="plop plop
 BROKEN:
-"
-  run validate_overall_structure "$COMMIT"
-  [ "$status" -eq $ERROR_STRUCTURE ]
-}
-
-@test "structure: missing empty line after the body with jira ref" {
-  COMMIT="plop plop
-
-plop
-plop
-plop
-plop
-LUM-1234
 "
   run validate_overall_structure "$COMMIT"
   [ "$status" -eq $ERROR_STRUCTURE ]
@@ -81,73 +60,7 @@ plop
   validate_overall_structure "$COMMIT"
   [[ $GLOBAL_HEADER == "plop plop" ]]
   [[ $GLOBAL_BODY == "" ]]
-  [[ $GLOBAL_JIRA == "" ]]
   [[ $GLOBAL_FOOTER == "" ]]
-}
-
-@test "structure: valid commit message with header and JIRA" {
-  COMMIT="plop plop
-
-ABC-1234"
-
-  validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "plop plop" ]]
-  [[ $GLOBAL_BODY == "" ]]
-  [[ $GLOBAL_JIRA == "ABC-1234" ]]
-  [[ $GLOBAL_FOOTER == "" ]]
-}
-
-@test "structure: valid commit message with JIRA in header" {
-  COMMIT="feat(abc): ABC-1234
-
-plop"
-
-  GLOBAL_JIRA_IN_HEADER="allow" validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "feat(abc): ABC-1234" ]]
-  [[ $GLOBAL_JIRA == "ABC-1234" ]]
-  [[ $GLOBAL_BODY == "plop"$'\n' ]]
-  [[ $GLOBAL_FOOTER == "" ]]
-}
-
-@test "structure: valid commit message with header and multiple JIRA" {
-  COMMIT="plop plop
-
-ABC-1234 DE-1234"
-
-  validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "plop plop" ]]
-  [[ $GLOBAL_BODY == "" ]]
-  [[ $GLOBAL_JIRA == "ABC-1234 DE-1234" ]]
-  [[ $GLOBAL_FOOTER == "" ]]
-}
-
-@test "structure: valid commit message with header and broken" {
-  COMMIT="plop plop
-
-BROKEN:
-- plop
-- plop"
-
-  validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "plop plop" ]]
-  [[ $GLOBAL_BODY == "" ]]
-  [[ $GLOBAL_JIRA == "" ]]
-  [[ $GLOBAL_FOOTER == "- plop"$'\n'"- plop"$'\n' ]]
-}
-
-@test "structure: valid commit message with header, jira and broken" {
-  COMMIT="plop plop
-
-ABC-1234
-BROKEN:
-- plop
-- plop"
-
-  validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "plop plop" ]]
-  [[ $GLOBAL_BODY == "" ]]
-  [[ $GLOBAL_JIRA == "ABC-1234" ]]
-  [[ $GLOBAL_FOOTER == "- plop"$'\n'"- plop"$'\n' ]]
 }
 
 @test "structure: valid commit message with header and body" {
@@ -179,25 +92,6 @@ toto"
   [[ $GLOBAL_FOOTER == "" ]]
 }
 
-@test "structure: valid commit message with header, multiline body and jira" {
-  COMMIT="plop plop
-
-hello
-
-plopplop
-plopplop
-
-toto
-
-ABC-1234"
-
-  validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "plop plop" ]]
-  [[ $GLOBAL_BODY == "hello"$'\n'"plopplop"$'\n'"plopplop"$'\n'"toto"$'\n' ]]
-  [[ $GLOBAL_JIRA == "ABC-1234" ]]
-  [[ $GLOBAL_FOOTER == "" ]]
-}
-
 @test "structure: valid commit message with header, multiline body and broken" {
   COMMIT="plop plop
 
@@ -216,28 +110,6 @@ BROKEN:
   [[ $GLOBAL_HEADER == "plop plop" ]]
   [[ $GLOBAL_BODY == "hello"$'\n'"plopplop"$'\n'"plopplop"$'\n'"toto"$'\n' ]]
   [[ $GLOBAL_JIRA == "" ]]
-  [[ $GLOBAL_FOOTER == "- plop"$'\n'"- plop"$'\n' ]]
-}
-
-@test "structure: valid commit message with header, multiline body, jira and broken" {
-  COMMIT="plop plop
-
-hello
-
-plopplop
-plopplop
-
-toto
-
-ABC-1234
-BROKEN:
-- plop
-- plop"
-
-  validate_overall_structure "$COMMIT"
-  [[ $GLOBAL_HEADER == "plop plop" ]]
-  [[ $GLOBAL_BODY == "hello"$'\n'"plopplop"$'\n'"plopplop"$'\n'"toto"$'\n' ]]
-  [[ $GLOBAL_JIRA == "ABC-1234" ]]
   [[ $GLOBAL_FOOTER == "- plop"$'\n'"- plop"$'\n' ]]
 }
 
@@ -433,7 +305,6 @@ BROKEN:
   MESSAGE='
 12345678 012345678 012345678 012345678 012345678 012345678 012345678 012345678 012345678 012345678 01
 
-LUM-2345'
 
   run validate_body_length "$MESSAGE"
   [[ "$status" -eq $ERROR_BODY_LENGTH ]]
@@ -446,7 +317,7 @@ LUM-2345'
 
 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-LUM-2345'
+'
 
   run validate_body_length "$MESSAGE"
   [[ "$status" -eq 0 ]]
@@ -456,7 +327,7 @@ LUM-2345'
   MESSAGE='
 0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_
 
-LUM-2345'
+'
 
   run validate_body_length "$MESSAGE"
   [[ "$status" -eq 0 ]]
@@ -474,7 +345,7 @@ LUM-2345'
 rerer
 
   
-LUM-2345'
+'
 
   run validate_trailing_space "$MESSAGE"
   [[ "$status" -eq $ERROR_TRAILING_SPACE ]]
@@ -485,7 +356,7 @@ LUM-2345'
 rerer
 
 
-LUM-2345'
+'
 
   run validate_trailing_space "$MESSAGE"
   [[ "$status" -eq 0 ]]
@@ -494,7 +365,7 @@ LUM-2345'
 @test "revert body without commit sha1 should be refused" {
   MESSAGE='rerer
 
-LUM-2345'
+'
 
   run validate_revert "$MESSAGE"
   [[ "$status" -eq $ERROR_REVERT ]]
@@ -507,7 +378,7 @@ LUM-2345'
 
 This reverts commit 1234567890.
 
-LUM-2345'
+'
 
   run validate_revert "$MESSAGE"
   [[ "$status" -eq 0 ]]
@@ -518,49 +389,9 @@ LUM-2345'
 @test "revert body without sha1 should be valid with the flag" {
   MESSAGE='rerer
 
-LUM-2345'
+'
 
   COMMIT_VALIDATOR_NO_REVERT_SHA1=1 run validate_revert "$MESSAGE"
-  [[ "$status" -eq 0 ]]
-}
-
-@test "features and fixes commits need jira reference" {
-  need_jira "feat"
-  need_jira "fix"
-}
-
-@test "features and fixes commits need jira reference if env empty" {
-  COMMIT_VALIDATOR_NO_JIRA= need_jira "feat"
-  COMMIT_VALIDATOR_NO_JIRA= need_jira "fix"
-}
-
-@test "features and fixes commits don't need jira reference if env non empty" {
-  ! COMMIT_VALIDATOR_NO_JIRA=1 need_jira "feat"
-  ! COMMIT_VALIDATOR_NO_JIRA=1 need_jira "fix"
-}
-
-@test "other commits don't need jira reference" {
-  ! need_jira "docs"
-  ! need_jira "test"
-}
-
-@test "feat without jira ref should be rejected" {
-  run validate_jira "feat" ""
-  [[ "$status" -eq $ERROR_JIRA ]]
-}
-
-@test "lint without jira ref should be validated" {
-  run validate_jira "lint" ""
-  [[ "$status" -eq 0 ]]
-}
-
-@test "feat with jira ref should be validated" {
-  run validate_jira "feat" "ABC-123"
-  [[ "$status" -eq 0 ]]
-}
-
-@test "feat with short jira ref should be validated" {
-  run validate_jira "feat" "AB-123"
   [[ "$status" -eq 0 ]]
 }
 
@@ -591,7 +422,7 @@ plop'
 
 Commit about stuff\"plop \"
 
-LUM-2345'
+'
 
   run validate "$MESSAGE"
   [[ "$status" -eq $ERROR_TYPE ]]
@@ -602,7 +433,7 @@ LUM-2345'
 
 Commit about stuff\"plop \"
 
-LUM-2345'
+'
 
   run validate "$MESSAGE"
   [[ "$status" -eq $ERROR_SCOPE ]]
@@ -613,7 +444,7 @@ LUM-2345'
 
 Commit about stuff\"plop \"
 
-LUM-2345'
+'
 
   run validate "$MESSAGE"
   [[ "$status" -eq $ERROR_SUBJECT ]]
@@ -624,7 +455,7 @@ LUM-2345'
 
 1 2 3 4 5678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901
 
-LUM-2345'
+'
 
   run validate "$MESSAGE"
   [[ "$status" -eq $ERROR_BODY_LENGTH ]]
@@ -644,7 +475,6 @@ LUM-2345'
 
 plop
 
-LUM-2345
 BROKEN:
 - 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
 
@@ -657,23 +487,11 @@ BROKEN:
 
 plop
 
-LUM-2345
 BROKEN:
 - 123456 '
 
   run validate "$MESSAGE"
   [[ "$status" -eq $ERROR_TRAILING_SPACE ]]
-}
-
-@test "overall validation missing jira" {
-  MESSAGE='feat(scope1): subject
-
-Commit about stuff\"plop \"
-
-2345'
-
-  run validate "$MESSAGE"
-  [[ "$status" -eq $ERROR_JIRA ]]
 }
 
 @test "overall validation" {
@@ -684,7 +502,6 @@ Commit about stuff\"plop \" dezd
 12345678901234567890123456789012345678901234567890
 12345678901234567890123456789012345678901234567890
 
-LUM-2345
 BROKEN:
 - plop
 - plop'
@@ -702,7 +519,6 @@ Commit about stuff\"plop \" dezd
 12345678901234567890123456789012345678901234567890
 12345678901234567890123456789012345678901234567890
 
-LUM-2345
 BROKEN:
 - plop
 - plop'
@@ -719,7 +535,6 @@ Commit about stuff\"plop \" dezd
 12345678901234567890123456789012345678901234567890
 12345678901234567890123456789012345678901234567890
 
-LUM-2345
 BROKEN:
 - plop
 - plop'
@@ -736,7 +551,6 @@ Commit about stuff\"plop \" dezd
 12345678901234567890123456789012345678901234567890
 12345678901234567890123456789012345678901234567890
 
-LUM-2345
 BROKEN:
 - plop
 - plop'

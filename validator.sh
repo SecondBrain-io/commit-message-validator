@@ -8,9 +8,6 @@ readonly HEADER_PATTERN="^([^\(]+)\(([^\)]+)\): (.+)$"
 readonly TYPE_PATTERN="^(feat|fix|docs|gen|lint|refactor|test|chore)$"
 readonly SCOPE_PATTERN="^([a-z][a-z0-9]*)(-[a-z0-9]+)*$"
 readonly SUBJECT_PATTERN="^([a-z0-9].*[^ ^\.])$"
-readonly JIRA_PATTERN="[A-Z]{2,6}[0-9]{0,6}-[0-9]{1,6}"
-readonly JIRA_FOOTER_PATTERN="^(${JIRA_PATTERN} ?)+$"
-readonly JIRA_HEADER_PATTERN="^.*[^A-Z](${JIRA_PATTERN}).*$"
 readonly BROKE_PATTERN="^BROKEN:$"
 readonly TRAILING_SPACE_PATTERN=" +$"
 readonly REVERT_HEADER_PATTERN="^[R|r]evert[: ].*$"
@@ -25,18 +22,14 @@ readonly ERROR_SCOPE=5
 readonly ERROR_SUBJECT=6
 readonly ERROR_BODY_LENGTH=7
 readonly ERROR_TRAILING_SPACE=8
-readonly ERROR_JIRA=9
 readonly ERROR_REVERT=10
 
 GLOBAL_HEADER=""
 GLOBAL_BODY=""
-GLOBAL_JIRA=""
 GLOBAL_FOOTER=""
 
 # Overridable variables
-GLOBAL_JIRA_TYPES="${GLOBAL_JIRA_TYPES:-feat fix}"
 GLOBAL_MAX_LENGTH="${GLOBAL_MAX_LENGTH:-100}"
-GLOBAL_JIRA_IN_HEADER="${GLOBAL_JIRA_IN_HEADER:-}"
 
 GLOBAL_TYPE=""
 GLOBAL_SCOPE=""
@@ -59,9 +52,6 @@ validate_overall_structure() {
     if [[ $STATE -eq $WAITING_HEADER ]]; then
       GLOBAL_HEADER="$LINE"
       STATE="$WAITING_EMPTY"
-      if [[ -n "${GLOBAL_JIRA_IN_HEADER:-}" ]] && [[ $LINE =~ $JIRA_HEADER_PATTERN ]]; then
-        GLOBAL_JIRA=${BASH_REMATCH[1]}
-      fi
 
     elif [[ $STATE -eq $WAITING_EMPTY ]]; then
       if [[ $LINE != "" ]]; then
@@ -78,9 +68,6 @@ validate_overall_structure() {
 
       if [[ $LINE =~ $BROKE_PATTERN ]]; then
         STATE="$READING_FOOTER"
-      elif [[ $LINE =~ $JIRA_FOOTER_PATTERN ]]; then
-        STATE="$READING_BROKEN"
-        GLOBAL_JIRA=${BASH_REMATCH[0]}
       else
         STATE="$READING_BODY"
         GLOBAL_BODY=$GLOBAL_BODY$LINE$'\n'
@@ -92,24 +79,13 @@ validate_overall_structure() {
         exit $ERROR_STRUCTURE
       fi
 
-      if [[ $LINE =~ $JIRA_FOOTER_PATTERN ]]; then
-        echo -e "missing empty line before JIRA reference"
-        exit $ERROR_STRUCTURE
-      fi
-
       if [[ $LINE = "" ]]; then
         STATE=$START_TEXT
       else
         GLOBAL_BODY=$GLOBAL_BODY$LINE$'\n'
       fi
 
-    elif [[ $STATE -eq $READING_BROKEN ]]; then
-      if [[ $LINE =~ $BROKE_PATTERN ]]; then
-        STATE="$READING_FOOTER"
-      else
-        echo -e "only broken part could be after the JIRA reference"
-        exit $ERROR_STRUCTURE
-      fi
+    fi
 
     elif [[ $STATE -eq $READING_FOOTER ]]; then
       if [[ $LINE = "" ]]; then
@@ -217,33 +193,6 @@ validate_trailing_space() {
   done <<< "$BODY"
 }
 
-need_jira() {
-  local TYPE=$1
-
-  if [[ ! -z "${COMMIT_VALIDATOR_NO_JIRA:-}" ]]; then
-    return 1
-  else
-    for type in ${GLOBAL_JIRA_TYPES}; do
-        if [[ "${TYPE}" == "${type}" ]]; then
-            return 0
-        fi
-    done
-    return 1
-  fi
-}
-
-validate_jira() {
-  local TYPE=$1
-  local JIRA=$2
-
-
-
-  if need_jira "$TYPE" && [[ -z "${JIRA:-}" ]]; then
-     echo -e "commits with type '${TYPE}' need to include a reference to a JIRA ticket, by adding the project prefix and the issue number to the commit message, this could be done easily with: git commit -m 'feat(widget): add a wonderful widget' -m LUM-1234"
-     exit $ERROR_JIRA
-  fi
-}
-
 validate_revert() {
   local BODY=$1
   local LINE=""
@@ -273,7 +222,6 @@ validate() {
 
    local HEADER="$GLOBAL_HEADER"
    local BODY="$GLOBAL_BODY"
-   local JIRA="$GLOBAL_JIRA"
    local FOOTER="$GLOBAL_FOOTER"
 
    validate_header "$HEADER"
@@ -299,6 +247,5 @@ validate() {
      validate_trailing_space "$BODY"
      validate_trailing_space "$FOOTER"
 
-     validate_jira "$TYPE" "$JIRA"
    fi
 }

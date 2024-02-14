@@ -34,10 +34,7 @@ type(scope): subject
 # It is optional but highly recommended for any impacting changes.
 
 ## Footer
-# The footer should contain any information about Breaking Changes and is also
-# the place to reference JIRA ticket related to this commit.
-# The footer is optional but for feat and fix type the JIRA reference is
-# mandatory.
+# The footer should contain any information about Breaking Changes.
 # The breaking changes must be at the end of the commit with only "BROKEN:"
 # before the list of breaking changes. They must be each on a new line.
 
@@ -47,7 +44,6 @@ type(scope): subject
 # Before we had to do another thing. There was this and this problem.
 # Now, by using "toto", it's simpler and the problems are managed.
 #
-# LUM-3462
 # BROKEN:
 # first thing broken
 # second thing broken

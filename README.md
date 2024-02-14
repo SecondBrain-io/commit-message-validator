@@ -59,8 +59,7 @@
 ## About The Project
 
 The provided script enforce Angular commit message convention, with an
-opinionated reduction of allowed types. Moreover, it enforces reference to a
-project management tools named JIRA.
+opinionated reduction of allowed types.
 
 ### Commit Message Format
 
@@ -124,11 +123,9 @@ It is optional but highly recommended for any impacting changes.
 
 ### Footer
 
-The footer should contain any information about **Breaking Changes** and is
-also the place to reference JIRA ticket related to this commit.
+The footer should contain any information about **Breaking Changes**.
 
-The footer is optional but for **feat** and **fix** type the JIRA reference
-is mandatory.
+The footer is optional but for **feat** and **fix**.
 
 The breaking changes must be at the end of the commit with only "BROKEN:"
 before the list of breaking changes. They must be each on a new line.
@@ -229,8 +226,6 @@ in `.git/hooks` directory of your repository.
 
 ### Command line Options
 
-- if `COMMIT_VALIDATOR_NO_JIRA` environment variable is not empty,
-  no validation is done on JIRA refs.
 - if `COMMIT_VALIDATOR_ALLOW_TEMP` environment variable is not empty,
   no validation is done on `fixup!` and `squash!` commits.
 - if `COMMIT_VALIDATOR_NO_REVERT_SHA1` environment variable is not empty,
@@ -275,14 +270,11 @@ jobs:
 
 ### Github Action option
 
-- if `no_jira` is not empty, no validation is done on JIRA refs.
 - if `allow_temp` is not empty, no validation is done on `fixup!`
   and `squash!` commits.
 - if `no_revert_sha1` is not empty, no validation is done on revert
   commits.
-- `jira_in_header` jira reference can be put in the commit header.
 - `header_length` allow to override the max length of the header line.
-- `jira_types` takes a space separated list `"feat fix"` as a parameter to override the default types requiring a jira
 
 ## Add pre-commit plugin
 
@@ -310,13 +302,10 @@ Then run `pre-commit install --hook-type commit-msg` to install the
 
 ### Pre commit hook options
 
-- if `no-jira` is set, no validation is done on JIRA refs.
 - if `allow-temp` is set, no validation is done on `fixup!` and `squash!`
   commits.
 - if `no-revert-sha1` is set, no validation is done on revert commits.
-- if `--jira-in-header` jira reference can be put in the commit header.
 - `--header-length` allow to override the max length of the header line.
-- `--jira-types` takes a space separated list `"feat fix"` as a parameter to override the default types requiring a jira
 
 <!-- ROADMAP -->
 
