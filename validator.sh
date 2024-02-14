@@ -85,8 +85,6 @@ validate_overall_structure() {
         GLOBAL_BODY=$GLOBAL_BODY$LINE$'\n'
       fi
 
-    fi
-
     elif [[ $STATE -eq $READING_FOOTER ]]; then
       if [[ $LINE = "" ]]; then
         echo -e "no empty line allowed in broken part"
