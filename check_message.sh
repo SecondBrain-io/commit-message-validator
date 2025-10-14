@@ -2,7 +2,7 @@
 
 set -eu
 
-OPTIONS=$(getopt --longoptions header-length: --options "" -- "$@")
+OPTIONS=$(getopt --longoptions allow-temp,header-length: --options "" -- "$@")
 unset COMMIT_VALIDATOR_ALLOW_TEMP COMMIT_VALIDATOR_NO_REVERT_SHA1
 
 eval set -- $OPTIONS

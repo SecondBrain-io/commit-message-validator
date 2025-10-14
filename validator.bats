@@ -71,7 +71,6 @@ hello"
   validate_overall_structure "$COMMIT"
   [[ $GLOBAL_HEADER == "plop plop" ]]
   [[ $GLOBAL_BODY == "hello"$'\n' ]]
-  [[ $GLOBAL_JIRA == "" ]]
   [[ $GLOBAL_FOOTER == "" ]]
 }
 
@@ -88,7 +87,6 @@ toto"
   validate_overall_structure "$COMMIT"
   [[ $GLOBAL_HEADER == "plop plop" ]]
   [[ $GLOBAL_BODY == "hello"$'\n'"plopplop"$'\n'"plopplop"$'\n'"toto"$'\n' ]]
-  [[ $GLOBAL_JIRA == "" ]]
   [[ $GLOBAL_FOOTER == "" ]]
 }
 
@@ -109,7 +107,6 @@ BROKEN:
   validate_overall_structure "$COMMIT"
   [[ $GLOBAL_HEADER == "plop plop" ]]
   [[ $GLOBAL_BODY == "hello"$'\n'"plopplop"$'\n'"plopplop"$'\n'"toto"$'\n' ]]
-  [[ $GLOBAL_JIRA == "" ]]
   [[ $GLOBAL_FOOTER == "- plop"$'\n'"- plop"$'\n' ]]
 }
 

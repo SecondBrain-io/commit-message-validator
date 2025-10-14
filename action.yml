@@ -2,7 +2,7 @@
 name: 'Commit message validator'
 description: >
   Enforce angular commit message convention with minimal dependency only git and bash.
-author: 'Sébastien Boulle'
+author: 'SecondBrain'
 branding:
   icon: 'check-square'
   color: 'green'
