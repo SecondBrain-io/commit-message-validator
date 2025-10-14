@@ -322,12 +322,12 @@ for a list of proposed features (and known issues).
 - [x] enforce the commit scope
 - [x] enforce the commit subject
 - [x] enforce the commit body length
-- [ ] enforce the JIRA reference
+- [ ] enforce the Redmine reference
 - [x] enforce the BROKEN part length
 - [x] avoid trailing space
 - [x] allow automated revert commit
 - [x] allow fixup! and squash! commit with an option
-- [ ] allow to not check JIRA reference with an option
+- [ ] allow to not check Redmine reference with an option
 - [ ] enforce subject length (3 words at least)
 
 <!-- CONTRIBUTING -->
