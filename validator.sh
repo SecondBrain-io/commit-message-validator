@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -eu
+
 if [[ -v ZSH_NAME ]]; then
   setopt BASH_REMATCH
   setopt RE_MATCH_PCRE
