@@ -341,7 +341,7 @@ BROKEN:
   MESSAGE='
 rerer
 
-  
+
 '
 
   run validate_trailing_space "$MESSAGE"
