@@ -2,14 +2,15 @@
 
 set -eu
 
-OPTIONS=$(getopt --longoptions allow-temp,header-length: --options "" -- "$@")
-unset COMMIT_VALIDATOR_ALLOW_TEMP COMMIT_VALIDATOR_NO_REVERT_SHA1
+OPTIONS=$(getopt --longoptions allow-temp,no-revert-sha1,no-refs,header-length: --options "" -- "$@")
+unset COMMIT_VALIDATOR_ALLOW_TEMP COMMIT_VALIDATOR_NO_REVERT_SHA1 COMMIT_VALIDATOR_NO_REFS
 
 eval set -- $OPTIONS
 while true; do
   case "$1" in
     --allow-temp ) COMMIT_VALIDATOR_ALLOW_TEMP=1; shift ;;
     --no-revert-sha1 ) COMMIT_VALIDATOR_NO_REVERT_SHA1=1; shift ;;
+    --no-refs ) COMMIT_VALIDATOR_NO_REFS=1; shift ;;
     --header-length ) GLOBAL_MAX_LENGTH="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
@@ -43,6 +44,7 @@ fi
 echo "Options: "
 echo "  TEMP=${COMMIT_VALIDATOR_ALLOW_TEMP:-}"
 echo "  NO_REVERT_SHA1=${COMMIT_VALIDATOR_NO_REVERT_SHA1:-}"
+echo "  NO_REFS=${COMMIT_VALIDATOR_NO_REFS:-}"
 printf "checking commit message:\n\n#BEGIN#\n%s\n#END#\n\n" "$MESSAGE"
 
 validate "$MESSAGE"

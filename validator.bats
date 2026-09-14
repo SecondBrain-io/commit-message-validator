@@ -110,6 +110,44 @@ BROKEN:
   [[ $GLOBAL_FOOTER == "- plop"$'\n'"- plop"$'\n' ]]
 }
 
+@test "structure: missing empty line before refs part" {
+  COMMIT="plop plop
+
+plop
+REFS: #1234
+"
+  run validate_overall_structure "$COMMIT"
+  [ "$status" -eq $ERROR_STRUCTURE ]
+}
+
+@test "structure: valid commit message with header, body and refs" {
+  COMMIT="plop plop
+
+hello
+
+REFS: #1234"
+
+  validate_overall_structure "$COMMIT"
+  [[ $GLOBAL_HEADER == "plop plop" ]]
+  [[ $GLOBAL_BODY == "hello"$'\n' ]]
+  [[ $GLOBAL_FOOTER == "REFS: #1234"$'\n' ]]
+}
+
+@test "structure: valid commit message with header, refs and broken" {
+  COMMIT="plop plop
+
+hello
+
+REFS: #1234
+BROKEN:
+- plop"
+
+  validate_overall_structure "$COMMIT"
+  [[ $GLOBAL_HEADER == "plop plop" ]]
+  [[ $GLOBAL_BODY == "hello"$'\n' ]]
+  [[ $GLOBAL_FOOTER == "REFS: #1234"$'\n'"BROKEN:"$'\n'"- plop"$'\n' ]]
+}
+
 @test "header overall should not allow 'type'" {
   run validate_header "type"
   [ "$status" -eq $ERROR_HEADER ]
@@ -301,7 +339,7 @@ BROKEN:
 @test "body with 101 line length should be rejected" {
   MESSAGE='
 12345678 012345678 012345678 012345678 012345678 012345678 012345678 012345678 012345678 012345678 01
-
+'
 
   run validate_body_length "$MESSAGE"
   [[ "$status" -eq $ERROR_BODY_LENGTH ]]
@@ -357,6 +395,46 @@ rerer
 
   run validate_trailing_space "$MESSAGE"
   [[ "$status" -eq 0 ]]
+}
+
+@test "refs is mandatory for feat commits" {
+  run validate_refs "feat" ""
+  [[ "$status" -eq $ERROR_REFS ]]
+}
+
+@test "refs is mandatory for fix commits" {
+  run validate_refs "fix" ""
+  [[ "$status" -eq $ERROR_REFS ]]
+}
+
+@test "refs is not mandatory for other commit types" {
+  run validate_refs "chore" ""
+  [[ "$status" -eq 0 ]]
+}
+
+@test "refs with the wrong format is treated as missing" {
+  run validate_refs "feat" "refs #1234"$'\n'
+  [[ "$status" -eq $ERROR_REFS ]]
+}
+
+@test "refs present is valid" {
+  run validate_refs "feat" "REFS: #1234"$'\n'
+  [[ "$status" -eq 0 ]]
+}
+
+@test "refs missing is valid for feat when COMMIT_VALIDATOR_NO_REFS is set" {
+  COMMIT_VALIDATOR_NO_REFS=1 run validate_refs "feat" ""
+  [[ "$status" -eq 0 ]]
+}
+
+@test "refs missing is valid for fix when COMMIT_VALIDATOR_NO_REFS is set" {
+  COMMIT_VALIDATOR_NO_REFS=1 run validate_refs "fix" ""
+  [[ "$status" -eq 0 ]]
+}
+
+@test "refs missing for feat is rejected when COMMIT_VALIDATOR_NO_REFS is unset" {
+  run validate_refs "feat" ""
+  [[ "$status" -eq $ERROR_REFS ]]
 }
 
 @test "revert body without commit sha1 should be refused" {
@@ -491,6 +569,53 @@ BROKEN:
   [[ "$status" -eq $ERROR_TRAILING_SPACE ]]
 }
 
+@test "overall validation invalid refs missing for feat" {
+  MESSAGE='feat(scope1): subject
+
+plop'
+
+  run validate "$MESSAGE"
+  [[ "$status" -eq $ERROR_REFS ]]
+}
+
+@test "overall validation invalid refs missing for fix" {
+  MESSAGE='fix(scope1): subject
+
+plop'
+
+  run validate "$MESSAGE"
+  [[ "$status" -eq $ERROR_REFS ]]
+}
+
+@test "overall validation refs not required for other types" {
+  MESSAGE='chore(scope1): subject
+
+plop'
+
+  run validate "$MESSAGE"
+  [[ "$status" -eq 0 ]]
+}
+
+@test "overall validation valid refs for feat" {
+  MESSAGE='feat(scope1): subject
+
+plop
+
+REFS: #1234'
+
+  run validate "$MESSAGE"
+  [[ "$status" -eq 0 ]]
+}
+
+@test "overall validation valid without refs for feat when COMMIT_VALIDATOR_NO_REFS is set" {
+  MESSAGE='feat(scope1): subject
+
+plop'
+
+  COMMIT_VALIDATOR_NO_REFS=1 run validate "$MESSAGE"
+  [[ "$status" -eq 0 ]]
+}
+
 @test "overall validation" {
   MESSAGE='feat(scope1): subject
 
@@ -499,6 +624,7 @@ Commit about stuff\"plop \" dezd
 12345678901234567890123456789012345678901234567890
 12345678901234567890123456789012345678901234567890
 
+REFS: #1234
 BROKEN:
 - plop
 - plop'
