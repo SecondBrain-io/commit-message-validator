@@ -13,6 +13,9 @@ inputs:
   no_revert_sha1:
     description: 'If not empty, reverted sha1 commit is not mandatory in revert commit message.'
     required: false
+  no_refs:
+    description: 'If not empty, no validation is done on the Redmine reference.'
+    required: false
   header_length:
     description: 'If not empty, max header_length'
     required: false
@@ -34,5 +37,6 @@ runs:
       env:
         COMMIT_VALIDATOR_ALLOW_TEMP: ${{ inputs.allow_temp }}
         COMMIT_VALIDATOR_NO_REVERT_SHA1: ${{ inputs.no_revert_sha1 }}
+        COMMIT_VALIDATOR_NO_REFS: ${{ inputs.no_refs }}
         GLOBAL_MAX_LENGTH: ${{ inputs.header_length }}
       shell: bash

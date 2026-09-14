@@ -123,12 +123,20 @@ It is optional but highly recommended for any impacting changes.
 
 ### Footer
 
-The footer should contain any information about **Breaking Changes**.
+The footer should contain any information about **Breaking Changes** and the
+**Redmine reference** for the commit.
 
 The footer is optional but for **feat** and **fix**.
 
 The breaking changes must be at the end of the commit with only "BROKEN:"
 before the list of breaking changes. They must be each on a new line.
+
+For **feat** and **fix** commits, the footer must also contain a reference
+to the related Redmine issue, on its own line, in the following format:
+
+```Markdown
+REFS: #1234
+```
 
 ### Commit Example
 
@@ -138,6 +146,7 @@ feat(toto-service): provide toto for all
 Before we had to do another thing. There was this and this problem.
 Now, by using "toto", it's simpler and the problems are managed.
 
+REFS: #1234
 BROKEN:
 first thing broken
 second thing broken
@@ -230,6 +239,8 @@ in `.git/hooks` directory of your repository.
   no validation is done on `fixup!` and `squash!` commits.
 - if `COMMIT_VALIDATOR_NO_REVERT_SHA1` environment variable is not empty,
   no validation is done revert commits.
+- if `COMMIT_VALIDATOR_NO_REFS` environment variable is not empty,
+  no validation is done on the Redmine reference.
 
 ### Commit template
 
@@ -274,6 +285,8 @@ jobs:
   and `squash!` commits.
 - if `no_revert_sha1` is not empty, no validation is done on revert
   commits.
+- if `no_refs` is not empty, no validation is done on the Redmine
+  reference.
 - `header_length` allow to override the max length of the header line.
 
 ## Add pre-commit plugin
@@ -305,6 +318,7 @@ Then run `pre-commit install --hook-type commit-msg` to install the
 - if `allow-temp` is set, no validation is done on `fixup!` and `squash!`
   commits.
 - if `no-revert-sha1` is set, no validation is done on revert commits.
+- if `no-refs` is set, no validation is done on the Redmine reference.
 - `--header-length` allow to override the max length of the header line.
 
 <!-- ROADMAP -->
@@ -322,12 +336,12 @@ for a list of proposed features (and known issues).
 - [x] enforce the commit scope
 - [x] enforce the commit subject
 - [x] enforce the commit body length
-- [ ] enforce the Redmine reference
+- [x] enforce the Redmine reference
 - [x] enforce the BROKEN part length
 - [x] avoid trailing space
 - [x] allow automated revert commit
 - [x] allow fixup! and squash! commit with an option
-- [ ] allow to not check Redmine reference with an option
+- [x] allow to not check Redmine reference with an option
 - [ ] enforce subject length (3 words at least)
 
 <!-- CONTRIBUTING -->

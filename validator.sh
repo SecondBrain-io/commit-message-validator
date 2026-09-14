@@ -13,6 +13,7 @@ readonly TYPE_PATTERN="^(feat|fix|docs|gen|lint|refactor|test|chore)$"
 readonly SCOPE_PATTERN="^([a-z][a-z0-9]*)(-[a-z0-9]+)*$"
 readonly SUBJECT_PATTERN="^([a-z0-9].*[^ ^\.])$"
 readonly BROKE_PATTERN="^BROKEN:$"
+readonly REFS_PATTERN="^REFS: #[0-9]+$"
 readonly TRAILING_SPACE_PATTERN=" +$"
 readonly REVERT_HEADER_PATTERN="^[R|r]evert[: ].*$"
 readonly REVERT_COMMIT_PATTERN="^This reverts commit ([a-f0-9]+)"
@@ -26,6 +27,7 @@ readonly ERROR_SCOPE=5
 readonly ERROR_SUBJECT=6
 readonly ERROR_BODY_LENGTH=7
 readonly ERROR_TRAILING_SPACE=8
+readonly ERROR_REFS=9
 readonly ERROR_REVERT=10
 
 GLOBAL_HEADER=""
@@ -72,6 +74,9 @@ validate_overall_structure() {
 
       if [[ $LINE =~ $BROKE_PATTERN ]]; then
         STATE="$READING_FOOTER"
+      elif [[ $LINE =~ $REFS_PATTERN ]]; then
+        STATE="$READING_FOOTER"
+        GLOBAL_FOOTER=$GLOBAL_FOOTER$LINE$'\n'
       else
         STATE="$READING_BODY"
         GLOBAL_BODY=$GLOBAL_BODY$LINE$'\n'
@@ -80,6 +85,11 @@ validate_overall_structure() {
     elif [[ $STATE -eq $READING_BODY ]]; then
       if [[ $LINE =~ $BROKE_PATTERN ]]; then
         echo -e "missing empty line before broke part"
+        exit $ERROR_STRUCTURE
+      fi
+
+      if [[ $LINE =~ $REFS_PATTERN ]]; then
+        echo -e "missing empty line before refs part"
         exit $ERROR_STRUCTURE
       fi
 
@@ -195,6 +205,33 @@ validate_trailing_space() {
   done <<< "$BODY"
 }
 
+validate_refs() {
+  local TYPE=$1
+  local FOOTER=$2
+  local LINE=""
+  local FOUND=0
+
+  if [[ ! -z "${COMMIT_VALIDATOR_NO_REFS:-}" ]]; then
+    return 0
+  fi
+
+  if [[ $TYPE != "feat" && $TYPE != "fix" ]]; then
+    return 0
+  fi
+
+  while IFS= read -r LINE ;
+  do
+    if [[ $LINE =~ $REFS_PATTERN ]]; then
+      FOUND=1
+    fi
+  done <<< "$FOOTER"
+
+  if [[ $FOUND -eq 0 ]]; then
+    echo -e "commit footer must contain a Redmine reference, e.g. 'REFS: #1234'"
+    exit $ERROR_REFS
+  fi
+}
+
 validate_revert() {
   local BODY=$1
   local LINE=""
@@ -248,6 +285,8 @@ validate() {
 
      validate_trailing_space "$BODY"
      validate_trailing_space "$FOOTER"
+
+     validate_refs "$TYPE" "$FOOTER"
 
    fi
 }

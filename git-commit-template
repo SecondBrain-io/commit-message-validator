@@ -34,7 +34,10 @@ type(scope): subject
 # It is optional but highly recommended for any impacting changes.
 
 ## Footer
-# The footer should contain any information about Breaking Changes.
+# The footer should contain any information about Breaking Changes and the
+# Redmine reference for the commit.
+# For feat and fix commits, the footer must contain a Redmine reference on
+# its own line, in the format: REFS: #1234
 # The breaking changes must be at the end of the commit with only "BROKEN:"
 # before the list of breaking changes. They must be each on a new line.
 
@@ -44,6 +47,7 @@ type(scope): subject
 # Before we had to do another thing. There was this and this problem.
 # Now, by using "toto", it's simpler and the problems are managed.
 #
+# REFS: #1234
 # BROKEN:
 # first thing broken
 # second thing broken
